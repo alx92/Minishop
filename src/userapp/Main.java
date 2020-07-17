@@ -1,6 +1,6 @@
-package firstapp;
+package userapp;
 
-import firstapp.ui.UserManagementUI;
+import userapp.ui.UserManagementUI;
 
 public class Main
 {
