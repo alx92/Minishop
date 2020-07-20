@@ -1,9 +1,9 @@
 package minishop.ui;
 
+import minishop.persistence.model.CategoryModel;
 import minishop.persistence.model.ProductModel;
-import minishop.service.InvalidPriceException;
-import minishop.service.ProductNotFoundException;
-import minishop.service.ProductService;
+import minishop.service.*;
+import userapp.persistence.model.DepartmentModel;
 
 import java.util.List;
 import java.util.Scanner;
@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class ProductUI
 {
     private ProductService productService = new ProductService();
-    private ProductModel productModel = new ProductModel();
+    private CategoryService categoryService = new CategoryService();
     private Scanner scanner = new Scanner(System.in);
 
     public void startProductManagement()
@@ -45,7 +45,8 @@ public class ProductUI
 
             if (option == 5)
             {
-                viewAllProductsInACategory();
+                viewProductsInACategory();
+                //viewCategories();
             }
         }
     }
@@ -58,6 +59,7 @@ public class ProductUI
                 "3. Assign existing category to an existing product \n" +
                 "4. View all products by id \n" +
                 "5. View all products in a category \n" +
+                //"5. View categories \n" +
                 "0. Exit");
     }
 
@@ -97,7 +99,9 @@ public class ProductUI
         {
             ProductModel productModel = productService.getProductById(productId);
 
-            System.out.println(productModel);
+            System.out.println("\n" + productModel.getProductName() +
+                    " (" + productModel.getId() + ")\nPrice: " + productModel.getPrice() + "\n" +
+                    "Description: " + productModel.getDescription() + "\n");
         }
         catch (ProductNotFoundException e)
         {
@@ -113,14 +117,13 @@ public class ProductUI
         System.out.println("Enter id of category:");
         String categoryId = scanner.nextLine();
 
-
-        productService.assignProductToCategory(productId,categoryId);
+        productService.assignProductToCategory(productId, categoryId);
     }
 
     //4
     private void viewOrderedProducts()
     {
-        List<ProductModel> productModels = productService.findAllProductsById();
+        List<ProductModel> productModels = productService.findAllProductsSortedById();
 
         productModels.forEach(productModel -> System.out.println("\n" + productModel.getProductName() +
                 " (" + productModel.getId() + ")\nPrice: " + productModel.getPrice() + "\n" +
@@ -128,17 +131,34 @@ public class ProductUI
     }
 
     //5
-    private void viewAllProductsInACategory()
+    private void viewProductsInACategory()
     {
         System.out.println("Enter category name: ");
         String categoryName = scanner.nextLine();
 
-        List<List<ProductModel>> products = productService.viewAllProductsInACategory(categoryName);
+        try
+        {
+            List<ProductModel> products = productService.viewAllProductsInACategory(categoryName);
 
-        products.forEach(productModels ->
-                productModels.forEach(productModel1 ->
-                        System.out.println("Product name: " + productModel1.getProductName() + " (" +
-                                productModel1.getId() + ")\n" + "Price: " + productModel1.getPrice() + "\n" +
-                                "Description: " + productModel1.getDescription() + "\n")));
+            products.forEach(productModel -> System.out.println("\n" + productModel.getProductName() +
+                    " (" + productModel.getId() + ")\nPrice: " + productModel.getPrice() + "\n" +
+                    "Description: " + productModel.getDescription() + "\n"));
+        }
+        catch (CategoryNotFoundException e)
+        {
+            System.out.println("Category not found!");
+        }
     }
+
+
+//    private void viewCategories() {
+//        System.out.println("Categories:");
+//        List<CategoryModel> categoryModelList = categoryService.getAllCategories();
+//        categoryModelList.forEach(categoryModel ->{
+//            System.out.println(categoryModel.getId() + " " + categoryModel.getCategoryName());
+//            List<ProductModel> products = categoryModel.getProducts();
+//            products.forEach(product -> System.out.println(product.getId() + " " + product.getProductName()));
+//
+//        });
+//    }
 }

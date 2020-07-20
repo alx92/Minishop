@@ -78,7 +78,10 @@ public class CategoryUI
         String categoryId = scanner.nextLine();
         try
         {
-            System.out.println(categoryService.getCategoryById(categoryId));
+            CategoryModel categoryModel = categoryService.getCategoryById(categoryId);
+
+            System.out.println("\n" + categoryModel.getCategoryName() +
+                    " (" + categoryModel.getId() + ")\n");
         }
         catch (CategoryNotFoundException e)
         {

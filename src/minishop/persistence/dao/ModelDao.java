@@ -16,6 +16,26 @@ public abstract class ModelDao<T extends Model> implements Dao<T>
         genericFileReader = new ObjectFileScanner<T>(fileName);
     }
 
+    public String getFileName()
+    {
+        return fileName;
+    }
+
+    public void setFileName(String fileName)
+    {
+        this.fileName = fileName;
+    }
+
+    public ObjectFileScanner<T> getGenericFileReader()
+    {
+        return genericFileReader;
+    }
+
+    public void setGenericFileReader(ObjectFileScanner<T> genericFileReader)
+    {
+        this.genericFileReader = genericFileReader;
+    }
+
     @Override
     public List<T> getAll()
     {
@@ -59,8 +79,10 @@ public abstract class ModelDao<T extends Model> implements Dao<T>
             T oldObject = models.get(i);
 
             if (oldObject.getId().equals(updatedObject.getId()))
+            {
                 models.remove(oldObject);
                 models.add(updatedObject);
+            }
         }
 
         genericFileReader.writeToFile(models);

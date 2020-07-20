@@ -5,11 +5,11 @@ import minishop.persistence.dao.ProductDao;
 import minishop.persistence.model.CategoryModel;
 import minishop.persistence.model.ProductModel;
 
+import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class ProductService
 {
@@ -47,21 +47,16 @@ public class ProductService
         Optional<ProductModel> productModelOptional = productDao.findById(idProduct); //gasim produs dupa id
 
         if (!productModelOptional.isPresent())
-        {
-            return;
-        }
+        { return; }
 
         ProductModel productModel = productModelOptional.get(); // get product out of the box
 
         Optional<CategoryModel> categoryModelOptional = categoryDao.findById(idCategory);
 
         if (!categoryModelOptional.isPresent())
-        {
-            return;
-        }
+        { return; }
 
         CategoryModel categoryModel = categoryModelOptional.get(); // get category out of the box
-
         List<ProductModel> products = categoryModel.getProducts();
 
         if(products == null)
@@ -74,20 +69,27 @@ public class ProductService
         categoryDao.update(categoryModel);
     }
 
-    public List<ProductModel> findAllProductsById()
+    public List<ProductModel> findAllProductsSortedById()
     {
         List<ProductModel> productModels = productDao.getAll();
         productModels.sort(Comparator.comparing(ProductModel::getId));
         return productModels;
     }
 
-    public List<List<ProductModel>> viewAllProductsInACategory(String categoryName)
+    public List<ProductModel> viewAllProductsInACategory(String categoryName) throws CategoryNotFoundException
     {
         List<CategoryModel> categories = categoryDao.getAll();
 
-        return categories.stream()
-                .filter(categoryModel -> categoryModel.getCategoryName().equals(categoryName))
-                .map(CategoryModel::getProducts)
-                .collect(Collectors.toList());
+        Optional<CategoryModel> categoryModelOptional =  categories.stream()
+                .filter(categoryModel -> categoryModel.getCategoryName().equals(categoryName)).findFirst();
+
+        if (!categoryModelOptional.isPresent())
+        {
+            throw new CategoryNotFoundException();
+        }
+
+        CategoryModel categoryModel = categoryModelOptional.get();
+
+        return categoryModel.getProducts();
     }
 }
